@@ -42,6 +42,7 @@ and IEC958 structure.
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdint.h>
 #include <stdarg.h>
 #include <unistd.h>
 #include <string.h>
@@ -94,8 +95,7 @@ int snd_ctl_close(snd_ctl_t *ctl)
 	}
 	err = ctl->ops->close(ctl);
 	free(ctl->name);
-	if (ctl->dl_handle)
-		snd_dlclose(ctl->dl_handle);
+	snd_dlobj_cache_put(ctl->open_func);
 	free(ctl);
 	return err;
 }
@@ -357,6 +357,74 @@ int snd_ctl_elem_add_boolean(snd_ctl_t *ctl, const snd_ctl_elem_id_t *id,
 	info->value.integer.min = 0;
 	info->value.integer.max = 1;
 	return ctl->ops->element_add(ctl, info);
+}
+
+/**
+ * \brief Create and add a user-defined control element of type enumerated.
+ * \param[in] ctl Control device handle.
+ * \param[in] id ID of the new control element.
+ * \param[in] count Number of element values.
+ * \param[in] items Range of possible values (0 ... \a items - 1).
+ * \param[in] names An array containing \a items strings.
+ * \return Zero on success, otherwise a negative error code.
+ *
+ * This function creates a user element, i.e., a control element that is not
+ * controlled by the control device's driver but that is just stored together
+ * with the other elements of \a ctl.
+ *
+ * The fields of \a id, except numid, must be set to unique values that
+ * identify the new element.
+ *
+ * The new element is locked; its value is initialized as zero.
+ *
+ * \par Errors:
+ * <dl>
+ * <dt>-EBUSY<dd>A control element with ID \a id already exists.
+ * <dt>-EINVAL<dd>\a count is not at least one or greater than 128, or \a items
+ * 	is not at least one, or a string in \a names is empty or longer than 63
+ * 	bytes, or the strings in \a names require more than 64 KB storage.
+ * <dt>-ENOMEM<dd>Out of memory, or there are too many user control elements.
+ * <dt>-ENXIO<dd>This driver does not support (enumerated) user controls.
+ * <dt>-ENODEV<dd>Device unplugged.
+ * </dl>
+ *
+ * \par Compatibility:
+ * snd_ctl_elem_add_enumerated() was introduced in ALSA 1.0.25.
+ */
+int snd_ctl_elem_add_enumerated(snd_ctl_t *ctl, const snd_ctl_elem_id_t *id,
+				unsigned int count, unsigned int items,
+				const char *const names[])
+{
+	snd_ctl_elem_info_t *info;
+	unsigned int i, bytes;
+	char *buf, *p;
+	int err;
+
+	assert(ctl && id && id->name[0] && names);
+
+	snd_ctl_elem_info_alloca(&info);
+	info->id = *id;
+	info->type = SND_CTL_ELEM_TYPE_ENUMERATED;
+	info->count = count;
+	info->value.enumerated.items = items;
+
+	bytes = 0;
+	for (i = 0; i < items; ++i)
+		bytes += strlen(names[i]) + 1;
+	buf = malloc(bytes);
+	if (!buf)
+		return -ENOMEM;
+	info->value.enumerated.names_ptr = (uintptr_t)buf;
+	info->value.enumerated.names_length = bytes;
+	p = buf;
+	for (i = 0; i < items; ++i)
+		p = stpcpy(p, names[i]) + 1;
+
+	err = ctl->ops->element_add(ctl, info);
+
+	free(buf);
+
+	return err;
 }
 
 /**
@@ -768,7 +836,6 @@ static int snd_ctl_open_conf(snd_ctl_t **ctlp, const char *name,
 #ifndef PIC
 	extern void *snd_control_open_symbols(void);
 #endif
-	void *h = NULL;
 	if (snd_config_get_type(ctl_conf) != SND_CONFIG_TYPE_COMPOUND) {
 		if (name)
 			SNDERR("Invalid type for CTL %s definition", name);
@@ -854,40 +921,22 @@ static int snd_ctl_open_conf(snd_ctl_t **ctlp, const char *name,
 #ifndef PIC
 	snd_control_open_symbols();
 #endif
-	open_func = snd_dlobj_cache_lookup(open_name);
+	open_func = snd_dlobj_cache_get(lib, open_name,
+			SND_DLSYM_VERSION(SND_CONTROL_DLSYM_VERSION), 1);
 	if (open_func) {
-		err = 0;
-		goto _err;
-	}
-	h = snd_dlopen(lib, RTLD_NOW);
-	if (h)
-		open_func = snd_dlsym(h, open_name, SND_DLSYM_VERSION(SND_CONTROL_DLSYM_VERSION));
-	err = 0;
-	if (!h) {
-		SNDERR("Cannot open shared library %s", lib);
-		err = -ENOENT;
-	} else if (!open_func) {
-		SNDERR("symbol %s is not defined inside %s", open_name, lib);
-		snd_dlclose(h);
+		err = open_func(ctlp, name, ctl_root, ctl_conf, mode);
+		if (err >= 0) {
+			(*ctlp)->open_func = open_func;
+			err = 0;
+		} else {
+			snd_dlobj_cache_put(open_func);
+		}
+	} else {
 		err = -ENXIO;
 	}
        _err:
 	if (type_conf)
 		snd_config_delete(type_conf);
-	if (err >= 0) {
-		err = open_func(ctlp, name, ctl_root, ctl_conf, mode);
-		if (err >= 0) {
-			if (h /*&& (mode & SND_CTL_KEEP_ALIVE)*/) {
-				snd_dlobj_cache_add(open_name, h, open_func);
-				h = NULL;
-			}
-			(*ctlp)->dl_handle = h;
-			err = 0;
-		} else {
-			if (h)
-				snd_dlclose(h);
-		}
-	}
 	free(buf);
 	free(buf1);
 	return err;
@@ -937,6 +986,28 @@ int snd_ctl_open_lconf(snd_ctl_t **ctlp, const char *name,
 {
 	assert(ctlp && name && lconf);
 	return snd_ctl_open_noupdate(ctlp, lconf, name, mode);
+}
+
+/**
+ * \brief Opens a fallback CTL
+ * \param ctlp Returned CTL handle
+ * \param root Configuration root
+ * \param name ASCII identifier of the CTL handle used as fallback
+ * \param orig_name The original ASCII name
+ * \param mode Open mode (see #SND_CTL_NONBLOCK, #SND_CTL_ASYNC)
+ * \return 0 on success otherwise a negative error code
+ */
+int snd_ctl_open_fallback(snd_ctl_t **ctlp, snd_config_t *root,
+			  const char *name, const char *orig_name, int mode)
+{
+	int err;
+	assert(ctlp && name && root);
+	err = snd_ctl_open_noupdate(ctlp, root, name, mode);
+	if (err >= 0) {
+		free((*ctlp)->name);
+		(*ctlp)->name = orig_name ? strdup(orig_name) : NULL;
+	}
+	return err;
 }
 
 #ifndef DOC_HIDDEN

@@ -224,6 +224,7 @@ char *snd_device_name_get_hint(const void *hint, const char *id);
 
 int snd_ctl_open(snd_ctl_t **ctl, const char *name, int mode);
 int snd_ctl_open_lconf(snd_ctl_t **ctl, const char *name, int mode, snd_config_t *lconf);
+int snd_ctl_open_fallback(snd_ctl_t **ctl, snd_config_t *root, const char *name, const char *orig_name, int mode);
 int snd_ctl_close(snd_ctl_t *ctl);
 int snd_ctl_nonblock(snd_ctl_t *ctl, int nonblock);
 int snd_async_add_ctl_handler(snd_async_handler_t **handler, snd_ctl_t *ctl, 
@@ -283,6 +284,13 @@ unsigned int snd_ctl_event_elem_get_index(const snd_ctl_event_t *obj);
 
 int snd_ctl_elem_list_alloc_space(snd_ctl_elem_list_t *obj, unsigned int entries);
 void snd_ctl_elem_list_free_space(snd_ctl_elem_list_t *obj);
+
+char *snd_ctl_ascii_elem_id_get(snd_ctl_elem_id_t *id);
+int snd_ctl_ascii_elem_id_parse(snd_ctl_elem_id_t *dst, const char *str);
+int snd_ctl_ascii_value_parse(snd_ctl_t *handle,
+			      snd_ctl_elem_value_t *dst,
+			      snd_ctl_elem_info_t *info,
+			      const char *value);
 
 size_t snd_ctl_elem_id_sizeof(void);
 /** \hideinitializer
@@ -410,6 +418,7 @@ void snd_ctl_elem_info_set_index(snd_ctl_elem_info_t *obj, unsigned int val);
 int snd_ctl_elem_add_integer(snd_ctl_t *ctl, const snd_ctl_elem_id_t *id, unsigned int count, long imin, long imax, long istep);
 int snd_ctl_elem_add_integer64(snd_ctl_t *ctl, const snd_ctl_elem_id_t *id, unsigned int count, long long imin, long long imax, long long istep);
 int snd_ctl_elem_add_boolean(snd_ctl_t *ctl, const snd_ctl_elem_id_t *id, unsigned int count);
+int snd_ctl_elem_add_enumerated(snd_ctl_t *ctl, const snd_ctl_elem_id_t *id, unsigned int count, unsigned int items, const char *const names[]);
 int snd_ctl_elem_add_iec958(snd_ctl_t *ctl, const snd_ctl_elem_id_t *id);
 int snd_ctl_elem_remove(snd_ctl_t *ctl, snd_ctl_elem_id_t *id);
 
