@@ -44,8 +44,23 @@ extern "C" {
 
 /** PCM generic info container */
 typedef struct _snd_pcm_info snd_pcm_info_t;
-/** PCM hardware configuration space container */
+
+/** PCM hardware configuration space container
+ *
+ *  snd_pcm_hw_params_t is an opaque structure which contains a set of possible
+ *  PCM hardware configurations. For example, a given instance might include a
+ *  range of buffer sizes, a range of period sizes, and a set of several sample
+ *  formats. Some subset of all possible combinations these sets may be valid,
+ *  but not necessarily any combination will be valid.
+ *
+ *  When a parameter is set or restricted using a snd_pcm_hw_params_set*
+ *  function, all of the other ranges will be updated to exclude as many
+ *  impossible configurations as possible. Attempting to set a parameter
+ *  outside of its acceptable range will result in the function failing
+ *  and an error code being returned.
+ */
 typedef struct _snd_pcm_hw_params snd_pcm_hw_params_t;
+
 /** PCM software configuration container */
 typedef struct _snd_pcm_sw_params snd_pcm_sw_params_t;
 /** PCM status container */
@@ -410,6 +425,9 @@ int snd_pcm_open(snd_pcm_t **pcm, const char *name,
 int snd_pcm_open_lconf(snd_pcm_t **pcm, const char *name, 
 		       snd_pcm_stream_t stream, int mode,
 		       snd_config_t *lconf);
+int snd_pcm_open_fallback(snd_pcm_t **pcm, snd_config_t *root,
+			  const char *name, const char *orig_name,
+			  snd_pcm_stream_t stream, int mode);
 
 int snd_pcm_close(snd_pcm_t *pcm);
 const char *snd_pcm_name(snd_pcm_t *pcm);
@@ -531,6 +549,7 @@ int snd_pcm_hw_params_can_resume(const snd_pcm_hw_params_t *params);
 int snd_pcm_hw_params_is_half_duplex(const snd_pcm_hw_params_t *params);
 int snd_pcm_hw_params_is_joint_duplex(const snd_pcm_hw_params_t *params);
 int snd_pcm_hw_params_can_sync_start(const snd_pcm_hw_params_t *params);
+int snd_pcm_hw_params_can_disable_period_wakeup(const snd_pcm_hw_params_t *params);
 int snd_pcm_hw_params_get_rate_numden(const snd_pcm_hw_params_t *params,
 				      unsigned int *rate_num,
 				      unsigned int *rate_den);
@@ -626,6 +645,8 @@ int snd_pcm_hw_params_set_rate_resample(snd_pcm_t *pcm, snd_pcm_hw_params_t *par
 int snd_pcm_hw_params_get_rate_resample(snd_pcm_t *pcm, snd_pcm_hw_params_t *params, unsigned int *val);
 int snd_pcm_hw_params_set_export_buffer(snd_pcm_t *pcm, snd_pcm_hw_params_t *params, unsigned int val);
 int snd_pcm_hw_params_get_export_buffer(snd_pcm_t *pcm, snd_pcm_hw_params_t *params, unsigned int *val);
+int snd_pcm_hw_params_set_period_wakeup(snd_pcm_t *pcm, snd_pcm_hw_params_t *params, unsigned int val);
+int snd_pcm_hw_params_get_period_wakeup(snd_pcm_t *pcm, snd_pcm_hw_params_t *params, unsigned int *val);
 
 int snd_pcm_hw_params_get_period_time(const snd_pcm_hw_params_t *params, unsigned int *val, int *dir);
 int snd_pcm_hw_params_get_period_time_min(const snd_pcm_hw_params_t *params, unsigned int *val, int *dir);
