@@ -7,23 +7,22 @@ Uploaders: Jordi Mallach <jordi@debian.org>,
 Build-Depends: autotools-dev,
                debhelper (>= 9),
                dh-autoreconf,
-               doxygen,
-               dpkg-dev (>= 1.16.1),
-               gcc-multilib [amd64],
-               lib32gcc1 [amd64],
-               libc6-dev-i386 [amd64],
-               python-dev
-Standards-Version: 3.9.3
+               dpkg-dev (>= 1.16.1)
+Build-Depends-Indep: doxygen
+Standards-Version: 3.9.5
 Homepage: http://www.alsa-project.org/
 Vcs-Svn: svn://anonscm.debian.org/pkg-alsa/trunk/alsa-lib
 Vcs-Browser: http://anonscm.debian.org/viewvc/pkg-alsa/trunk/alsa-lib/
+XS-Testsuite: autopkgtest
 
 Package: libasound2
 Architecture: linux-any
 Multi-Arch: same
 Pre-Depends: ${misc:Pre-Depends}
-Depends: ${misc:Depends}, ${shlibs:Depends}
-Suggests: libasound2-plugins (>= 1.0.18)
+Depends: ${misc:Depends},
+         ${shlibs:Depends},
+         libasound2-data (>= ${source:Version})
+Suggests: libasound2-plugins (>= 1.0.24)
 Breaks: bluez-alsa (<= 4.94-2),
         libasound2-plugin-equal (<= 0.6-1),
         libasound2-plugins (<< 1.0.24)
@@ -38,7 +37,7 @@ Architecture: linux-any
 Section: libdevel
 Multi-Arch: same
 Provides: libasound-dev
-Depends: libasound2 (= ${binary:Version}), libc6-dev | libc-dev, ${misc:Depends}
+Depends: libasound2 (= ${binary:Version}), ${misc:Depends}
 Suggests: libasound2-doc
 Description: shared library for ALSA applications -- development files
  This package contains files required for developing software
@@ -48,6 +47,7 @@ Description: shared library for ALSA applications -- development files
 
 Package: libasound2-dbg
 Architecture: linux-any
+Multi-Arch: same
 Section: debug
 Priority: extra
 Depends: libasound2 (= ${binary:Version}), ${misc:Depends}
@@ -58,34 +58,16 @@ Description: debugging symbols for libasound2
  .
  ALSA is the Advanced Linux Sound Architecture.
 
-Package: lib32asound2
-Architecture: amd64
-Depends: libasound2 (= ${binary:Version}),
-         ${bilib:Depends},
-         ${misc:Depends},
-         ${shlibs:Depends}
-Breaks: ia32-libs (<< 1.9),
-        libasound2-plugins (<< 1.0.18),
-        libc6-i386 (<= 2.9-18)
-Replaces: ia32-libs (<< 1.9)
-Description: shared library for ALSA applications (32 bit)
- This package contains the ALSA library (32 bit) and its standard
- plugins.
- .
- ALSA is the Advanced Linux Sound Architecture.
-
-Package: lib32asound2-dev
-Architecture: amd64
-Section: libdevel
-Depends: lib32asound2 (= ${binary:Version}),
-         libasound2-dev (= ${binary:Version}),
-         ${bidev:Depends},
-         ${misc:Depends}
-Suggests: libasound2-doc
-Breaks: libc6-i386 (<= 2.9-18)
-Description: shared library for ALSA applications -- development files (32 bit)
- This package contains files required for developing software
- that makes use of lib32asound2, the ALSA library (32 bit).
+Package: libasound2-data
+Architecture: all
+Depends: ${misc:Depends}
+Suggests: alsa-utils
+Breaks: libasound2 (<< 1.0.27-4)
+Replaces: libasound2 (<< 1.0.27-4)
+Multi-Arch: foreign
+Description: Configuration files and profiles for ALSA drivers
+ This package contains configuration files for ALSA drivers and UCM
+ profiles for use with alsaucm.
  .
  ALSA is the Advanced Linux Sound Architecture.
 

@@ -1,3 +1,375 @@
+Changelog between 1.0.27.2 and 1.0.28 releases
+(http://www.alsa-project.org/main/index.php/Changes_v1.0.27.2_v1.0.28)
+(Reformated as ASCII text)
++++++++++++++++++++++++++++++++++++++++++++
+
+* alsa-lib
+
+  * Core
+    Release v1.0.28
+    autotools: update style
+    Portability fix: look for sys/endian.h as well as endian.h
+    alsa-lib: heavy pcm atomics cleanup
+    include/global.h - don't define timeval and timespec structures for !glibc
+    local.h: include sys/types.h to fix issues with pcm.h
+    remove unnecessary/obsolete compat/hsearch_r.c
+    Update iatomic.h functions definitions for mips
+    local.h: use __kernel_off_t from <linux/types.h>
+
+  * Control API
+    control_hw: fix potential memory leak
+    snd_tlv_convert_from_dB: fix decreasing gain across entries
+    Fix access of freed memory in namehints
+
+  * PCM API
+    alsa-lib: pcm_plug: fix float conversion for user specified ttable
+    pcm: rate plugin - remove the rewind/forward implementation
+    pcm: rate: add rewindable and forwardable callbacks
+    pcm: null plugin - fix the avail count
+    pcm: null: add rewindable and forwardable callbacks
+    pcm: multi: implement rewindable and forwardable callbacks
+    pcm:file: add the missing htimestamp callback
+    pcm: Fix channel map query when there are lots of maps
+    pcm: route: Correctly close slave pcm when no matching chmap is found
+    pcm: Fix forward/rewind support in iec958 plugin
+    pcm: rate: Don't return negative frame count on success in rewind
+    pcm: ladspa: Delay LADSPA plugin activate call
+    Revert "pcm: route: Don't handle no matching chmap as a serious error"
+    route: Fix invalid pointer access
+    route: Return NULL in case of zero found channels in determine_chmap
+    pcm: route: Don't handle no matching chmap as a serious error
+    pcm: Wrap hw_ptr to boundary in pcm_ioplug
+    pcm: route: Select slave chmap based on ttable information
+    pcm: route: Allow chmap syntax for slave channels in ttable
+    pcm: Insert linear-to-float conversion when rate or channel count is incorrect
+    Portability fix: look for sys/endian.h as well as endian.h
+    alsa-lib: heavy pcm atomics cleanup
+    pcm: use CLOCK_REALTIME for non-monotonic ts
+    pcm: initialize monotonic field for dshare and dsnoop, too
+    pcm: initialize pcm_dmix monotonic field
+    alsa-lib: minor typo in pcm doc
+    minor malloc changes
+    dmix: Don't use assert() and abort()
+    pcm_file: document new argument to snd_pcm_file_open().
+    pcm_file: don't touch infile on playback and output file on capture.
+    pcm_file: fixed memory leak.
+    pcm_file: fix SEGFAULT if file option is missing while infile is not.
+    pcm: Fix a wrong value shown in the error message in rate plugin
+
+  * Use Case Manager API
+    UCM: Document some standard values
+
+  * /Makefile.am
+    autotools: update style
+
+  * /alsalisp/Makefile.am
+    autotools: update style
+
+  * /src/Makefile.am
+    remove unnecessary/obsolete compat/hsearch_r.c
+
+  * ALSA Lisp
+    minor malloc changes
+
+  * ALSA Server
+    autotools: update style
+
+  * Compatibility routines
+    remove unnecessary/obsolete compat/hsearch_r.c
+
+  * Configuration
+    Loopback.conf: fix the comment
+    src/conf/cards: Add missing entry for Loopback.conf
+    conf: Allow 2.1 surround to use different number of channels
+    conf: Add surround 2.1 support to all cards
+    conf: Add basic infrastructure for 2.1 surround sound
+    conf.c: use portable way to initialize recursive mutex
+    HDA-Intel: present up to 8 HDMI/DP outputs via "hdmi" device
+    conf/cards: add Audio Advantage Micro II
+
+  * Documentation
+    autotools: update style
+
+  * Kernel Headers
+    hdspm.h: Update LTC ioctl to use struct hdspm_ltc
+
+  * Test/Example code
+    Add -lm to test programs to fix build failure.
+    test/chmap: Add missing usage text for -s option
+
+Changelog between 1.0.27.1 and 1.0.27.2 releases
+(http://www.alsa-project.org/main/index.php/Changes_v1.0.27.1_v1.0.27.2)
+(Reformated as ASCII text)
++++++++++++++++++++++++++++++++++++++++++++
+
+* alsa-lib
+
+  + Core
+    Release v1.0.27.2
+    Allow specifying the max number of cards
+
+  + Control API
+    Allow specifying the max number of cards
+
+  + HWDEP API
+    Allow specifying the max number of cards
+
+  + PCM API
+    pcm_direct: fix SEGFAULT when getgrnam_r() returns 0 and pgrp is NULL
+    pcm_hw: Fix buffer overflow in chmap
+    chmap: Always succeed setting the map to what it already is
+    pcm_direct: fix the memory leak when parsing the slave definitions
+    pcm_plugin: Fix return value of snd_pcm_rewind
+    pcm_hw: Remove unused fields in struct
+    pcm: Fix typo in documentation: PREPARE → PREPARED.
+
+  + Use Case Manager API
+    ucm: Fix segfault when device argument is missing from _sw{dev, mod}
+
+  + Configuration
+    Allow specifying the max number of cards
+
+Changelog between 1.0.27 and 1.0.27.1 releases
+(http://www.alsa-project.org/main/index.php/Changes_v1.0.27_v1.0.27.1)
+(Reformated as ASCII text)
++++++++++++++++++++++++++++++++++++++++++++
+
+* alsa-lib
+  + Core
+    Release v1.0.27.1
+    Remove an obsolete macro in configure.in
+    Add AM_MAINTAINER_MODE.
+    conf/ucm: Set up for installation
+    Add definition of __inline__ for non-GCC
+    Use __inline__ for exported headers
+
+  + Control API
+    Use __inline__ for exported headers
+
+  + PCM API
+    Use __inline__ for exported headers
+    bring pcm.h and pcm.c in sync with the kernel list
+    pcm.c: fix indentation
+
+  + RawMidi API
+    Fix several spelling errors for “writable” and derivatives.
+
+  + Sequencer API
+    seqmid: restore sequencer address prefix match feature
+
+  + ALSA Lisp
+    Fix several spelling errors for “writable” and derivatives.
+
+  + Configuration
+    conf/ucm: DAISY-I2S: Set default filter mode for HiFi.
+    conf/ucm: Set up for installation
+    conf/ucm: tegraalc5632: add UCM config from Ubuntu
+    conf/ucm: SDP4430: add UCM config from Ubuntu
+    conf/ucm: PandaBoardES: add UCM config from Ubuntu
+    conf/ucm: PandaBoard: add UCM config from Ubuntu
+    conf/ucm: DAISY-I2S: add Samsung ARM Chromebook UCM config from ChromeOS
+    conf - Add Scarlett 2i2 USB to S/PDIF blacklist
+
+  + Dynamic Loader helpers
+    Compile in the ALSA search path instead of relying on ld.so.conf.
+    Fix doubly call of dlclose() in dlobj caching code
+
+  + External PCM Filter Plugin SDK
+    Use __inline__ for exported headers
+
+Changelog between 1.0.26 and 1.0.27 releases
+(http://www.alsa-project.org/main/index.php/Changes_v1.0.26_v1.0.27)
+(Reformated as ASCII text)
++++++++++++++++++++++++++++++++++++++++++++
+
+* alsa-lib
+  + Core
+    Release v1.0.27
+    all places: doxygen cleanups
+    Add sys/types.h to include list
+    Add snd_lib_error_set_local() to install a thread-local error handler.
+    configure: do not detect incorrect cross-compiler
+    Fix endian check in local.h
+    configure: Quite AM_CONDITIONAL() arguments
+    Add workaround for conflicting snd_seq_event_t definitions
+    Merge kernel uapi/sound/asound.h and asequencer.h
+
+  + Control API
+    control: enhance doc for snd_ctl_ascii_value_parse() function
+    control, pcm: implement snd_ctl_abort() and snd_pcm_abort() functions
+    Add workaround for conflicting IEC958 controls for HD-audio
+    control: Simplify using snd_config_get_bool()
+    snd_device_name_hint(): do not use global snd_config.
+    snd_device_name_hint(): do not change the global error handler.
+    Merge kernel uapi/sound/asound.h and asequencer.h
+    Implement the channel mapping API
+
+  + Mixer API
+    all places: doxygen cleanups
+    snd_mixer_poll_descriptors_revents should loop over pollfd
+    mixer: Don't build simple_abst when no libdl is available
+    Reduce compilation warnings
+
+  + PCM API
+    pcm: direct plugins: do more safe IPC semaphore handling
+    all places: doxygen cleanups
+    control, pcm: implement snd_ctl_abort() and snd_pcm_abort() functions
+    pcm: fix typo, should be SND_PCM_STATE_PREPARED.
+    pcm: fix and optimize snd_pcm_areas_copy function
+    snd_pcm_direct_parse_open_conf(): use thread-safe getgrnam_r()
+    PCM: Fix conflict of _snd_pcm_hw_params definitions
+    PCM: shut up a compile "unused parameter" compile warning in pcm_multi.c
+    PCM: Add more chmap definitions for UAC2
+    Merge kernel uapi/sound/asound.h and asequencer.h
+    PCM: Avoid busy loop in snd_pcm_write_areas() with rate plugin
+    Reduce compilation warnings
+    PCM: Fix memory leak for pcm empty and asym plugins
+    pcm: support for audio timestamps
+    PCM: Fix the invalid snd_pcm_close() calls in rate plugin
+    PCM: Fix infinite loop in htimestamp of dmix, dsnoop and dshare plugins
+    PCM: Fill SND_CHMAP_NA to silent channels in route plugin
+    PCM: A few doxygen fixes for chmap stuff
+    PCM: Fix the conversion from string to chmap position
+    PCM: Define MONO and other channel map positions
+    PCM: Use compounds for overriding / enhancing chmaps
+    PCM: Add the missing query_chmaps for route plugin
+    PCM: Add chmap options to hw and null plugins
+    PCM: Add query_chmaps support to multi plugin
+    PCM: Add snd_pcm_chmap_long_name()
+    PCM: Add SND_CHMAP_API_VERSION definition
+    PCM: Add string conversion helper functions for chmap
+    PCM: Fix prefix for snd_pcm_chmap_type enum members
+    PCM: Implement snd_pcm_query_chmaps_from_hw()
+    PCM: Introduce snd_pcm_chmap_t and snd_pcm_chmap_query_t
+    Add SND_CHMAP_NA and bit flag definitions
+    Follow channel position definitions to mixer channel in mixer.h
+    Define channel map position enum in pcm.h
+    Cache the chmap operation errors
+    Implement get_chmap/set_chmap for PCM extplug/ioplug plugins
+    Implement get_chmap/set_chmap for PCM plug, route and multi plugins
+    Implement the channel mapping API
+
+  + Sequencer API
+    Merge kernel uapi/sound/asound.h and asequencer.h
+    Reduce compilation warnings
+
+  + Timer API
+    Merge kernel uapi/sound/asound.h and asequencer.h
+
+  + Use Case Manager API
+    ucm: Set uc_mgr->ctl to NULL after closing it.
+
+  + ALSA Lisp
+    Reduce compilation warnings
+
+  + Configuration
+    USB-audio: Add "HP Digital Stereo Headset" to SPDIF blacklist
+    Add workaround for conflicting IEC958 controls for HD-audio
+    conf: Fix a memory access violation resulting from improper error propogation
+    conf: Add chmap definitions to TRIDENT and SI7018 configurations
+    PCM: Use compounds for overriding / enhancing chmaps
+    Add chmap override definitions for Emu10k1, Audigy and Audigy2 cards
+
+  + Documentation
+    all places: doxygen cleanups
+
+  + Dynamic Loader helpers
+    Optimize NULL check in snd_dlobj_cache_put()
+    Clean up dlobj cache only when no user is present
+
+  + Error handler
+    Add snd_lib_error_set_local() to install a thread-local error handler.
+
+  + External Control Plugin SDK
+    all places: doxygen cleanups
+
+  + External PCM Filter Plugin SDK
+    PCM: Introduce snd_pcm_chmap_t and snd_pcm_chmap_query_t
+    Implement get_chmap/set_chmap for PCM extplug/ioplug plugins
+
+  + External PCM I/O Plugin SDK
+    PCM: Introduce snd_pcm_chmap_t and snd_pcm_chmap_query_t
+    Implement get_chmap/set_chmap for PCM extplug/ioplug plugins
+
+  + Kernel Headers
+    PCM: Add more chmap definitions for UAC2
+    Merge kernel uapi/sound/asound.h and asequencer.h
+    pcm: fix 64-bit SNDRV_PCM_IOCTL_STATUS ABI breakage
+    pcm: support for audio timestamps
+    PCM: Define MONO and other channel map positions
+    Add SND_CHMAP_NA and bit flag definitions
+    Follow channel position definitions to mixer channel in mixer.h
+    Implement the channel mapping API
+
+  + Test/Example code
+    pcm: support for audio timestamps
+    test: add audio_time
+    test/chmap: Fix wrong malloc size
+    PCM: Add string conversion helper functions for chmap
+    Fix duplicated channel entry in test/chmap.c
+    Add SND_CHMAP_NA and bit flag definitions
+    Follow channel position definitions to mixer channel in mixer.h
+    Add test/chmap program
+
+Changelog between 1.0.25 and 1.0.26 releases
+(http://www.alsa-project.org/main/index.php/Changes_v1.0.25_v1.0.26)
+(Reformated as ASCII text)
++++++++++++++++++++++++++++++++++++++++++++
+
+* alsa-lib
+  + Core
+    Release v1.0.26
+
+  + Control API
+    ucm: Improve cset command parsing
+    control: Use strcpy() instead of stpcpy()
+    hctl: Remove a useless assert
+    Fix the binary compatibility of ext-ctl plugin with protocol 1.0.0
+    tlv: improve robustness of raw value ranges
+    control_external: Add ability to specify TLV data.
+
+  + Mixer API
+    mixer: Remove redundant CHECK_ENUM() from snd_mixer_selem_is_enum*()
+
+  + PCM API
+    PCM: plug: Move fast_ops copy after slave configuration.
+    PCM: Allow to run older version of extplug plugin
+    pcm_dsnoop: comment fall-through in next "case"
+    pcm: add missing "break" in "switch"
+    doc: Fix typo in PCM formats
+
+  + Sequencer API
+    seqmid - more descriptions on snd_seq_parse_address() behavior
+
+  + Use Case Manager API
+    ucm: Add const to execute_cset() argument
+    ucm: Improve cset command parsing
+    ucm: Return NULL from get_list0() and get_list20() in case of empty lists.
+    ucm: Add missing pthread.h include
+    build: Fallback to alphasort() if versionsort() isn't available
+    ucm: Handle repeat device and modifier enables/disables
+
+  + Configuration
+    build: Fallback to alphasort() if versionsort() isn't available
+    conf: Add more USB devices to S/PDIF blacklist
+    Fix invalid long long format specifier
+    alsa-lib conf: Add two more USB devices to iec958 blacklist
+    alsa-lib conf: block S/PDIF access for Sennheiser USB headset
+    USB-Audio: Fixup card name for Logitech web camera
+    USB-Audio: Blacklist iec958 for some USB devices
+    conf/pcm: Add support for Echo3G devices. Thanks to unimatrix.
+
+  + External Control Plugin SDK
+    Fix the binary compatibility of ext-ctl plugin with protocol 1.0.0
+    control_external: Add ability to specify TLV data.
+
+ + Test/Example code
+   test/latency.c: Fix string argument to getopt_long, so now it handles -E and -B
+   Fix invalid long long format specifier
+
+  + Utils
+    build: Disable another compile chack with --disable-alsatest
+
 Changelog between 1.0.24 and 1.0.25 releases
 (http://www.alsa-project.org/main/index.php/Changes_v1.0.24_v1.0.25)
 (Reformated as ASCII text)
